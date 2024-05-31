@@ -1,4 +1,4 @@
-# Infra - Terraform - EKS
+# Infra - Terraform - AWS-EKS
 
 
 
