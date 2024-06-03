@@ -17,7 +17,7 @@ resource "aws_route_table" "eks_rt_public" {
   vpc_id = aws_vpc.eks_vpc.id
 
   route {
-    cidr_block = "10.0.1.0/24"
+    cidr_block = "0.0.0.0/0"
     gateway_id = aws_internet_gateway.eks_igw.id
   }
 
@@ -29,4 +29,3 @@ resource "aws_route_table" "eks_rt_public" {
   )
 }
 
-/* Route Table - Private */
