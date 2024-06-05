@@ -20,3 +20,5 @@ variable "subnet_public_1b" {
   description = "Subnet Public 1b"
 
 }
+
+ 

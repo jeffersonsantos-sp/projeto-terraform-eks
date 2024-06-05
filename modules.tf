@@ -17,7 +17,15 @@ module "eks_cluster" {
 
 
 module "eks_nodes" {
-  source       = "./modules/managed-nodes"
-  project_name = var.project_name
-  tags         = local.tags
+  source            = "./modules/managed-nodes"
+  project_name      = var.project_name
+  tags              = local.tags
+  cluster_name      = var.cluster_name
+  subnet-private-1a = module.eks_network.subnet-private-1a
+  subnet-private-1b = module.eks_network.subnet-private-1b
+
+}
+
+module "k8s" {
+  source = "./modules/kubernetes"
 }

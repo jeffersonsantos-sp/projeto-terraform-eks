@@ -10,4 +10,9 @@ variable "project_name" {
 }
 
 
+variable "cluster_name" {
+  type        = string
+  description = "Name Cluster"
+}
+
  
