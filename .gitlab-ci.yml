@@ -1,0 +1,19 @@
+image: registry.gitlab.com/gitlab-org/terraform-images/stable:latest
+
+stages:
+  - test
+  - plan
+  - apply
+  - resources
+  - destroy
+
+validate_terrafom:  
+  stage: test
+  script:
+    -  cd /projeto-terraform-eks
+    -  terraform init  --backend=true
+    -  terraform plan
+  when: always
+  
+
+    
