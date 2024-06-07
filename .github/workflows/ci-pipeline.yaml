@@ -83,6 +83,8 @@ jobs:
         image: docker:19.03.12
         options: --privileged
     steps:
+      - name: Install gzip
+        run: yum install -y gzip
       - name: Install tar
         run: yum install -y tar      
       - name: Checkout repository
