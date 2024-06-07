@@ -1,0 +1,104 @@
+# .github/workflows/ci-pipeline.yaml
+name: CI Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  TF_IN_AUTOMATION: "true"
+  KUBECONFIG: /etc/kubernetes/admin.conf
+
+jobs:
+  validate_terraform:
+    runs-on: ubuntu-latest
+    container:
+      image: registry.gitlab.com/gitlab-org/terraform-images/stable:latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Export AWS credentials
+        run: |
+          echo "$AWS_ACCESS_KEY_ID"
+          echo "$AWS_SECRET_ACCESS_KEY"
+      - name: Terraform init
+        run: terraform init --backend=true
+      - name: Terraform format
+        run: terraform fmt --recursive
+      - name: Terraform validate
+        run: terraform validate
+      - name: Terraform plan
+        run: terraform plan -var "cidr_block=${{ secrets.CIDR_BLOCK }}" -var "project_name=${{ secrets.PROJECT_NAME }}" -var "cluster_name=${{ secrets.CLUSTER_NAME }}"
+
+  aplicar_terraform:
+    runs-on: ubuntu-latest
+    container:
+      image: registry.gitlab.com/gitlab-org/terraform-images/stable:latest
+    if: github.event_name == 'workflow_dispatch'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Export AWS credentials
+        run: |
+          echo "$AWS_ACCESS_KEY_ID"
+          echo "$AWS_SECRET_ACCESS_KEY"
+      - name: Terraform init
+        run: terraform init --backend=true
+      - name: Terraform apply
+        run: terraform apply --auto-approve -var "cidr_block=${{ secrets.CIDR_BLOCK }}" -var "project_name=${{ secrets.PROJECT_NAME }}" -var "cluster_name=${{ secrets.CLUSTER_NAME }}"
+
+  install_ingress_nginx:
+    runs-on: ubuntu-latest
+    container:
+      image: amazonlinux:2
+    services:
+      docker:
+        image: docker:19.03.12
+        options: --privileged
+    if: github.event_name == 'workflow_dispatch'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Install utilities
+        run: |
+          yum install -y curl unzip tar gzip
+      - name: Install kubectl
+        run: |
+          curl -LO "https://storage.googleapis.com/kubernetes-release/release/$(curl -s https://storage.googleapis.com/kubernetes-release/release/stable.txt)/bin/linux/amd64/kubectl"
+          chmod +x ./kubectl
+          mv ./kubectl /usr/local/bin/kubectl
+      - name: Install aws-cli
+        run: |
+          curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+          unzip awscliv2.zip
+          ./aws/install
+      - name: Install eksctl
+        run: |
+          curl --silent --location "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_$(uname -s)_amd64.tar.gz" | tar xz -C /tmp
+          mv /tmp/eksctl /usr/local/bin
+      - name: Configure kubectl
+        run: |
+          mkdir -p ~/.kube
+          echo "${{ secrets.KUBECONFIG_CONTENT }}" | base64 -d > ~/.kube/config
+      - name: Update kubeconfig
+        run: aws eks update-kubeconfig --name ${{ secrets.PROJECT_NAME }}-eks_cluster --region ${{ secrets.AWS_DEFAULT_REGION }}
+      - name: Apply Ingress NGINX
+        run: kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.10.1/deploy/static/provider/aws/deploy.yaml --validate=false
+
+  destroy_terraform:
+    runs-on: ubuntu-latest
+    container:
+      image: registry.gitlab.com/gitlab-org/terraform-images/stable:latest
+    if: github.event_name == 'workflow_dispatch'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+      - name: Export AWS credentials
+        run: |
+          echo "$AWS_ACCESS_KEY_ID"
+          echo "$AWS_SECRET_ACCESS_KEY"
+      - name: Terraform init
+        run: terraform init --backend=true
+      - name: Terraform destroy
+        run: terraform destroy --auto-approve -var "cidr_block=${{ secrets.CIDR_BLOCK }}" -var "project_name=${{ secrets.PROJECT_NAME }}" -var "cluster_name=${{ secrets.CLUSTER_NAME }}"

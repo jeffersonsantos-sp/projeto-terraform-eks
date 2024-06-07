@@ -1,3 +1,7 @@
+provider "kubernetes" {
+  config_path = "~/.kube/config"
+}
+
 resource "kubernetes_namespace" "ingress_nginx" {
   metadata {
     name = "ingress-nginx"
