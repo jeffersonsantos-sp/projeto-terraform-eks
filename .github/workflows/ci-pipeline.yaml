@@ -163,8 +163,8 @@ jobs:
         run: aws eks update-kubeconfig --name ${{ secrets.PROJECT_NAME }}-eks_cluster --region ${{ secrets.AWS_DEFAULT_REGION }}
       - name: Apply Prometheus
         run: |       
-          kubectl create -f  https://github.com/prometheus-operator/kube-prometheus/tree/main/manifests/setup  --validate=false
-          kubectl apply -f  https://github.com/prometheus-operator/kube-prometheus/tree/main/manifests/  --validate=false
+          kubectl create -f  https://github.com/prometheus-operator/kube-prometheus/tree/main/manifests/setup 
+          kubectl apply -f  https://github.com/prometheus-operator/kube-prometheus/tree/main/manifests/ 
   destroy_terraform:
     if: ${{ github.event.inputs.job == 'destroy_terraform' || github.event_name == 'workflow_dispatch' && github.event.inputs.job == 'destroy_terraform' }}
     runs-on: ubuntu-latest
