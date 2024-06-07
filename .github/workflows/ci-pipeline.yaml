@@ -1,10 +1,10 @@
-# .github/workflows/ci-pipeline.yaml
 name: CI Pipeline
 
 on:
   push:
     branches:
       - main
+  workflow_dispatch: # Permitir execução manual
 
 env:
   TF_IN_AUTOMATION: "true"
@@ -18,10 +18,12 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-      - name: Export AWS credentials
-        run: |
-          echo "$AWS_ACCESS_KEY_ID"
-          echo "$AWS_SECRET_ACCESS_KEY"
+      - name: Set up AWS credentials
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+        run: echo "AWS credentials set"
       - name: Terraform init
         run: terraform init --backend=true
       - name: Terraform format
@@ -39,10 +41,12 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-      - name: Export AWS credentials
-        run: |
-          echo "$AWS_ACCESS_KEY_ID"
-          echo "$AWS_SECRET_ACCESS_KEY"
+      - name: Set up AWS credentials
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+        run: echo "AWS credentials set"
       - name: Terraform init
         run: terraform init --backend=true
       - name: Terraform apply
@@ -60,6 +64,12 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
+      - name: Set up AWS credentials
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+        run: echo "AWS credentials set"
       - name: Install utilities
         run: |
           yum install -y curl unzip tar gzip
@@ -94,10 +104,12 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
-      - name: Export AWS credentials
-        run: |
-          echo "$AWS_ACCESS_KEY_ID"
-          echo "$AWS_SECRET_ACCESS_KEY"
+      - name: Set up AWS credentials
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+        run: echo "AWS credentials set"
       - name: Terraform init
         run: terraform init --backend=true
       - name: Terraform destroy
