@@ -78,15 +78,14 @@ jobs:
     runs-on: ubuntu-latest
     container:
       image: amazonlinux:2
-    services:
-      docker:
-        image: docker:19.03.12
-        options: --privileged
+    #services:
+    #  docker:
+    #    image: docker:19.03.12
+    #    options: --privileged
     steps:
       - name: Install gzip
-        run: yum install -y gzip
-      - name: Install tar
-        run: yum install -y tar      
+        run: | 
+          yum install -y gzip tar
       - name: Checkout repository
         uses: actions/checkout@v2
       - name: Configure AWS credentials
