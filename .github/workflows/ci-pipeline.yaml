@@ -120,7 +120,7 @@ jobs:
         run: kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.10.1/deploy/static/provider/aws/deploy.yaml --validate=false
 
   install_prometheus:
-    if: ${{ github.event.inputs.job == 'install_ingress_nginx' || github.event_name == 'workflow_dispatch' && github.event.inputs.job == 'install_ingress_nginx' }}
+    if: ${{ github.event.inputs.job == 'install_prometheus' || github.event_name == 'workflow_dispatch' && github.event.inputs.job == 'install_ingress_nginx' }}
     runs-on: ubuntu-latest
     container:
       image: amazonlinux:2
